@@ -20,4 +20,16 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest
           file: ./backend/Dockerfile
       - name: Log image pushed
-        run: echo "Pushed backend image to GHCR"
+        run: |
+          echo "Pushed backend image to GHCR: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest" >> $GITHUB_STEP_SUMMARY
+
+      - name: Deploy to Render (optional)
+        if: ${{ secrets.RENDER_API_KEY && secrets.RENDER_SERVICE_ID }}
+        uses: actions/http-client@v1
+        with:
+          url: https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}
+          method: POST
+          headers: |
+            Authorization: Bearer ${{ secrets.RENDER_API_KEY }}
+          body: |
+            { }
